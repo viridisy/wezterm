@@ -77,6 +77,11 @@ As features stabilize some brief notes about them will accumulate here.
   easier to spot the remaining candidates. Thanks to @mr-felixoid and @bew! #7752
 
 #### New
+* [colors](config/appearance.md#defining-your-own-colors) now accepts
+  `bold = { fg = '#ffd866' }` to set the color of bold text that uses the
+  default foreground color. Combined with
+  [bold_brightens_ansi_colors = 'BrightOnly'](config/lua/config/bold_brightens_ansi_colors.md)
+  such text is drawn with a non-bold font in that color.
 * [command_palette_line_height](config/lua/config/command_palette_line_height.md)
   option to scale the vertical spacing of rows in the command palette,
   independently of [line_height](config/lua/config/line_height.md) which is for terminal cells only.

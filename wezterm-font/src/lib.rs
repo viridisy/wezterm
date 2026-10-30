@@ -1016,6 +1016,11 @@ impl FontConfigInner {
             wezterm_term::color::ColorAttribute::PaletteIndex(idx) if idx < 8 => {
                 attrs.intensity() == Intensity::Bold
             }
+            // Bold text in the default color is drawn with `colors.bold.fg`
+            // when that is set, so it is brightened in the same sense
+            wezterm_term::color::ColorAttribute::Default => {
+                attrs.intensity() == Intensity::Bold && config.resolved_palette.bold_fg().is_some()
+            }
             _ => false,
         };
 
