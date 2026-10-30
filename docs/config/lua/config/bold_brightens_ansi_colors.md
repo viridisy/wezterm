@@ -28,3 +28,18 @@ This option can now have one of three values:
 You may use `true` or `false` for backwards compatibility.  `true` is
 equivalent to `"BrightAndBold"` and `false` is equivalent to `"No"`.
 
+{{since('nightly')}}
+
+Bold text in the default foreground color can be given its own color by
+setting `bold = { fg = ... }` in the [colors](../../appearance.md#defining-your-own-colors)
+section.  That color is used regardless of this option, but when this option
+is set to `"BrightOnly"`, such text is also treated as normal intensity, so it
+is drawn with a non-bold font in that color, the same as bright ansi colors:
+
+```lua
+config.bold_brightens_ansi_colors = 'BrightOnly'
+config.colors = {
+  bold = { fg = '#ffd866' },
+}
+```
+

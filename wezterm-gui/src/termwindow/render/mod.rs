@@ -924,6 +924,16 @@ impl crate::TermWindow {
     }
 }
 
+/// Returns the `colors.bold.fg` color if it applies to text with
+/// these attributes; it is only used for bold text that has the
+/// default foreground color.
+fn bold_fg_color(attrs: &CellAttributes, config: &ConfigHandle) -> Option<config::RgbaColor> {
+    if attrs.intensity() != wezterm_term::Intensity::Bold {
+        return None;
+    }
+    config.resolved_palette.bold_fg()
+}
+
 fn resolve_fg_color_attr(
     attrs: &CellAttributes,
     fg: ColorAttribute,
@@ -934,6 +944,8 @@ fn resolve_fg_color_attr(
     match fg {
         wezterm_term::color::ColorAttribute::Default => {
             if let Some(fg) = style.foreground {
+                fg.into()
+            } else if let Some(fg) = bold_fg_color(attrs, config) {
                 fg.into()
             } else {
                 palette.resolve_fg(attrs.foreground())

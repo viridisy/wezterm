@@ -150,6 +150,8 @@ pub struct Palette {
     pub indexed: HashMap<u8, RgbaColor>,
     /// Configure the colors and styling of the tab bar
     pub tab_bar: Option<TabBarColors>,
+    /// Configure the colors used for bold text
+    pub bold: Option<BoldColors>,
     /// The color of the "thumb" of the scrollbar; the segment that
     /// represents the current viewable area
     pub scrollbar_thumb: Option<RgbaColor>,
@@ -184,6 +186,11 @@ pub struct Palette {
 impl_lua_conversion_dynamic!(Palette);
 
 impl Palette {
+    /// The `colors.bold.fg` color, if any
+    pub fn bold_fg(&self) -> Option<RgbaColor> {
+        self.bold.as_ref().and_then(|bold| bold.fg)
+    }
+
     pub fn overlay_with(&self, other: &Self) -> Self {
         macro_rules! overlay {
             ($name:ident) => {
@@ -205,6 +212,12 @@ impl Palette {
             ansi: overlay!(ansi),
             brights: overlay!(brights),
             tab_bar: match (&self.tab_bar, &other.tab_bar) {
+                (Some(a), Some(b)) => Some(a.overlay_with(&b)),
+                (None, Some(b)) => Some(b.clone()),
+                (Some(a), None) => Some(a.clone()),
+                (None, None) => None,
+            },
+            bold: match (&self.bold, &other.bold) {
                 (Some(a), Some(b)) => Some(a.overlay_with(&b)),
                 (None, Some(b)) => Some(b.clone()),
                 (Some(a), None) => Some(a.clone()),
@@ -319,6 +332,24 @@ impl From<Palette> for ColorPalette {
             p.colors.0[idx as usize] = col.into();
         }
         p
+    }
+}
+
+/// Colors used for text with bold intensity
+#[derive(Default, Debug, Clone, PartialEq, FromDynamic, ToDynamic)]
+pub struct BoldColors {
+    /// The text color to use for bold text that has the default
+    /// foreground color.  Text with an explicit palette or true
+    /// color foreground is not affected.
+    #[dynamic(default)]
+    pub fg: Option<RgbaColor>,
+}
+
+impl BoldColors {
+    pub fn overlay_with(&self, other: &Self) -> Self {
+        Self {
+            fg: other.fg.or(self.fg),
+        }
     }
 }
 
@@ -809,4 +840,34 @@ brights = [ "#8ca6a6" ,"#e5164a" ,"#00b368" ,"#b3694d" ,"#0094f0" ,"#ff5792" ,"#
         scheme.colors.indexed.get(&52),
         Some(&RgbColor::new_8bpc(0xfb, 0xda, 0xda).into())
     );
+}
+
+#[cfg(test)]
+#[test]
+fn test_bold_colors() {
+    let scheme = r##"
+[colors]
+foreground = "#005661"
+ansi = [ "#8ca6a6" ,"#e64100" ,"#00b368" ,"#fa8900" ,"#0095a8" ,"#ff5792" ,"#00bdd6" ,"#005661" ]
+brights = [ "#8ca6a6" ,"#e5164a" ,"#00b368" ,"#b3694d" ,"#0094f0" ,"#ff5792" ,"#00bdd6" ,"#004d57" ]
+
+[colors.bold]
+fg = "#ffd866"
+"##;
+    let scheme = ColorSchemeFile::from_toml_str(scheme).unwrap().colors;
+    let yellow: RgbaColor = RgbColor::new_8bpc(0xff, 0xd8, 0x66).into();
+    let blue: RgbaColor = RgbColor::new_8bpc(0x11, 0x22, 0x33).into();
+    assert_eq!(scheme.bold_fg(), Some(yellow));
+
+    // A palette without `bold` keeps the bold color of the other one
+    let plain = Palette::default();
+    assert_eq!(plain.overlay_with(&scheme).bold_fg(), Some(yellow));
+    assert_eq!(scheme.overlay_with(&plain).bold_fg(), Some(yellow));
+
+    // The overlaid palette wins when both specify it
+    let other = Palette {
+        bold: Some(BoldColors { fg: Some(blue) }),
+        ..Palette::default()
+    };
+    assert_eq!(scheme.overlay_with(&other).bold_fg(), Some(blue));
 }
