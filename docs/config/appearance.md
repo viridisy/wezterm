@@ -82,6 +82,11 @@ config.colors = {
   -- The color of the split lines between panes
   split = '#444444',
 
+  -- The text color for bold text that uses the default foreground color.
+  -- Text with an explicit ansi, palette or true color is not affected.
+  -- See also `bold_brightens_ansi_colors`.
+  bold = { fg = '#ffd866' }, -- {{since('nightly', inline=True)}}
+
   ansi = {
     'black',
     'maroon',
