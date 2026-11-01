@@ -124,6 +124,8 @@ impl crate::TermWindow {
                         foreground_text_hsb,
                         milliseconds,
                         projection,
+                        color_saturation: self.config.color_saturation,
+                        _padding: [0.0; 3],
                     });
 
                     render_pass.set_pipeline(&webgpu.render_pipeline);
@@ -248,6 +250,7 @@ impl crate::TermWindow {
                     uniforms.add("atlas_nearest_sampler", &atlas_nearest_sampler);
                     uniforms.add("atlas_linear_sampler", &atlas_linear_sampler);
                     uniforms.add("foreground_text_hsb", &foreground_text_hsb);
+                    uniforms.add("color_saturation", &self.config.color_saturation);
                     uniforms.add("subpixel_aa", &subpixel_aa);
                     uniforms.add("milliseconds", &milliseconds);
                     uniforms.add_struct("cursor_blink", &cursor_blink);

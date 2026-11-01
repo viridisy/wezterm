@@ -569,6 +569,12 @@ pub struct Config {
     #[dynamic(default)]
     pub foreground_text_hsb: HsbTransform,
 
+    /// Multiplies the saturation of everything drawn by the terminal,
+    /// text and cell backgrounds alike. Alpha is left alone, so that
+    /// window_background_opacity and system backdrops are unaffected.
+    #[dynamic(default = "default_one_point_oh")]
+    pub color_saturation: f32,
+
     #[dynamic(default)]
     pub background: Vec<BackgroundLayer>,
 

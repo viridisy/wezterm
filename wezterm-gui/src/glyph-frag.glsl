@@ -17,6 +17,7 @@ layout(location=0, index=0) out vec4 color;
 layout(location=0, index=1) out vec4 colorMask;
 
 uniform vec3 foreground_text_hsb;
+uniform float color_saturation;
 uniform sampler2D atlas_nearest_sampler;
 uniform sampler2D atlas_linear_sampler;
 uniform bool subpixel_aa;
@@ -154,6 +155,7 @@ void main() {
   }
 
   color = apply_hsv(color, o_hsv);
+  color = apply_hsv(color, vec3(1.0, color_saturation, 1.0));
 
   // We MUST output SRGB and tell glium that we do that (outputs_srgb),
   // otherwise something in glium over-gamma-corrects depending on the gl setup.

@@ -17,6 +17,8 @@ pub struct ShaderUniform {
     pub foreground_text_hsb: [f32; 3],
     pub milliseconds: u32,
     pub projection: [[f32; 4]; 4],
+    pub color_saturation: f32,
+    pub _padding: [f32; 3],
     // sampler2D atlas_nearest_sampler;
     // sampler2D atlas_linear_sampler;
 }
